@@ -1,0 +1,49 @@
+Sub ticker()
+    Dim open_price As Double
+    Dim close_price As Double
+    Dim ticker As String
+    Dim volume As Double
+    Dim change_price As Double
+    Dim i As Long
+    Dim ws As Worksheet
+    Dim last_row As Long
+    Dim next_row_summary As Long
+    Dim percent_change As Double
+    
+    open_price = 0
+    close_price = 0
+    ticker = ""
+    volume = 0
+    change_price = 0
+    percent_change = 0
+    
+    For Each ws In ThisWorkbook.Worksheets
+        ws.Cells(2, 9).Resize(ws.Rows.Count - 1, 9).ClearContents
+        last_row = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+        For i = 2 To last_row
+            If ws.Cells(i, 1).Value <> ws.Cells(i - 1, 1).Value Then
+                ticker = ws.Cells(i, 1).Value
+                open_price = ws.Cells(i, 3).Value
+                volume = ws.Cells(i, "G").Value
+                close_price = 0
+                change_price = 0
+            Else: volume = volume + ws.Cells(i, 7).Value
+                
+            End If
+            If ws.Cells(i, 1).Value <> ws.Cells(i + 1, 1).Value Then
+                close_price = ws.Cells(i, 6).Value
+                change_price = close_price - open_price
+                next_row_summary = ws.Cells(ws.Rows.Count, 9).End(xlUp).Row + 1
+                ws.Cells(next_row_summary, 9).Value = ticker
+                ws.Cells(next_row_summary, 10).Value = change_price
+                If open_price <> 0 Then
+                    percent_change = (change_price / open_price)
+                Else
+                    percent_change = 0
+                End If
+                ws.Cells(next_row_summary, 11).Value = percent_change
+                ws.Cells(next_row_summary, 12).Value = volume
+            End If
+        Next i
+    Next ws
+End Sub
